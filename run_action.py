@@ -775,6 +775,28 @@ def main():
         )
         return 0
 
+    clang_tidy_errors = [
+        fix for fix in clang_tidy_fixes["Diagnostics"] if fix["Level"] == "Error"
+    ]
+    clang_tidy_warnings = [
+        fix for fix in clang_tidy_fixes["Diagnostics"] if fix["Level"] == "Warning"
+    ]
+    clang_tidy_remarks = [
+        fix for fix in clang_tidy_fixes["Diagnostics"] if fix["Level"] == "Remark"
+    ]
+
+    if len(clang_tidy_fixes["Diagnostics"]) != (
+        len(clang_tidy_errors) + len(clang_tidy_warnings) + len(clang_tidy_remarks)
+    ):
+        print(
+            "WARNING: some fixes have an unexpected Level (e.g. not Error, Warning, Remark)"
+        )
+
+    # show diagnostics ordered by level: first error, then warning, then remark
+    clang_tidy_fixes["Diagnostics"] = (
+        clang_tidy_errors + clang_tidy_warnings + clang_tidy_remarks
+    )
+
     review_comments = list(
         generate_review_comments(
             clang_tidy_fixes,
